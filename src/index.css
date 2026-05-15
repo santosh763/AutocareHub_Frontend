@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Syne:wght@600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-50: #E1F5EE;
+    --brand-100: #9FE1CB;
+    --brand-200: #5DCAA5;
+    --brand-300: #1D9E75;
+    --brand-400: #0F6E56;
+    --brand-500: #085041;
+    --color-bg: #FAFAF9;
+    --color-surface: #FFFFFF;
+    --color-border: rgba(0,0,0,0.08);
+    --color-border-strong: rgba(0,0,0,0.14);
+    --color-text: #1A1A18;
+    --color-text-muted: #6B6B63;
+  }
+
+  .dark {
+    --color-bg: #111110;
+    --color-surface: #1C1C1A;
+    --color-border: rgba(255,255,255,0.08);
+    --color-border-strong: rgba(255,255,255,0.14);
+    --color-text: #F0EFE8;
+    --color-text-muted: #9B9B93;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--brand-200); }
+}
+
+@layer components {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(0,0,0,0.06) 25%,
+      rgba(0,0,0,0.1) 50%,
+      rgba(0,0,0,0.06) 75%
+    );
+    background-size: 400px 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 0.375rem;
+  }
+
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.05) 25%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.05) 75%
+    );
+    background-size: 400px 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  .glass-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  .dark .glass-card {
+    background: rgba(28,28,26,0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* React Hot Toast overrides */
+.react-hot-toast {
+  font-family: 'DM Sans', sans-serif !important;
+}
