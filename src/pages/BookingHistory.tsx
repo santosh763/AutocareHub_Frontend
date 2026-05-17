@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppDispatch';
 import { fetchBookingsThunk } from '../store/slices/bookingsSlice';
 import { SkeletonRow } from '../components/ui/Badge';
@@ -18,6 +20,7 @@ const FILTERS: { label: string; value: BookingStatus | 'all' }[] = [
 
 const BookingHistory: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const { items: bookings, loading } = useAppSelector(
     (s) => s.bookings
@@ -296,7 +299,7 @@ const BookingHistory: React.FC = () => {
                                 {
                                   l: 'Payment',
                                   v:
-                                    paymentStatus === 'paid'
+                                    paymentStatus === 'paid' || paymentStatus === 'success'
                                       ? '✅ Paid'
                                       : '⏳ Pending',
                                 },
@@ -314,6 +317,40 @@ const BookingHistory: React.FC = () => {
                                   </span>
                                 </div>
                               ))}
+
+                              {booking.status === 'pending' && (paymentStatus === 'pending' || paymentStatus === 'failed') && (
+                                <Button
+                                  size="sm"
+                                  className="w-full mt-4"
+                                  onClick={() => navigate('/payment', { state: { booking } })}
+                                >
+                                  Pay Now
+                                </Button>
+                              )}
+
+                              {booking.status === 'pending' && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full mt-2 text-red-500 hover:bg-red-50"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (window.confirm('Are you sure you want to cancel this booking?')) {
+                                      try {
+                                        await dispatch(fetchBookingsThunk()); // Refresh list
+                                        const bookingService = (await import('../api/bookingService')).default;
+                                        await bookingService.cancel(String(booking.id));
+                                        toast.success('Booking cancelled');
+                                        dispatch(fetchBookingsThunk());
+                                      } catch (err) {
+                                        toast.error('Failed to cancel booking');
+                                      }
+                                    }
+                                  }}
+                                >
+                                  Cancel Booking
+                                </Button>
+                              )}
                             </div>
                           </div>
 

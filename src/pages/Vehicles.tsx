@@ -6,13 +6,15 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { SkeletonCard } from '../components/ui/Badge';
-import type { Vehicle } from '../types';
+import type { Vehicle, VehicleType } from '../types';
+import { VEHICLE_TYPE_CONFIG } from '../types';
 
-const emptyForm = () => ({
+const emptyForm = (): { brand: string; model: string; year: number; registration_number: string; vehicle_type: VehicleType } => ({
   brand: '',
   model: '',
   year: new Date().getFullYear(),
   registration_number: '',
+  vehicle_type: 'car',
 });
 
 const Vehicles: React.FC = () => {
@@ -51,6 +53,7 @@ const Vehicles: React.FC = () => {
       model: vehicle.model,
       year: vehicle.year,
       registration_number: vehicle.registration_number,
+      vehicle_type: vehicle.vehicle_type || 'car',
     });
 
     setModalOpen(true);
@@ -154,7 +157,7 @@ const Vehicles: React.FC = () => {
           <AnimatePresence>
             {vehicles?.map((vehicle) => (
               <motion.div
-                key={vehicle.id}
+                key={vehicle?.id}
                 layout
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -164,16 +167,16 @@ const Vehicles: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-start gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-brand-50 dark:bg-brand-400/10 flex items-center justify-center text-3xl flex-shrink-0">
-                      🚗
+                      {VEHICLE_TYPE_CONFIG[vehicle.vehicle_type]?.icon ?? '🚗'}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 dark:text-zinc-100">
-                        {vehicle.brand} {vehicle.model}
+                        {vehicle?.brand} {vehicle?.model}
                       </h3>
 
                       <p className="text-sm text-gray-500 dark:text-zinc-400">
-                        {vehicle.year}
+                        {vehicle?.year}
                       </p>
                     </div>
                   </div>
@@ -184,7 +187,7 @@ const Vehicles: React.FC = () => {
                     </p>
 
                     <p className="font-mono font-medium text-sm text-gray-900 dark:text-zinc-100 tracking-widest">
-                      {vehicle.registration_number}
+                      {vehicle?.registration_number}
                     </p>
                   </div>
                 </div>
@@ -200,7 +203,7 @@ const Vehicles: React.FC = () => {
                   <div className="w-px bg-gray-100 dark:bg-zinc-800" />
 
                   <button
-                    onClick={() => setDeleteModal(Number(vehicle.id))}
+                    onClick={() => setDeleteModal(Number(vehicle?.id))}
                     className="flex-1 py-3 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                   >
                     Delete
@@ -230,6 +233,24 @@ const Vehicles: React.FC = () => {
         }
       >
         <div className="space-y-4">
+          <div className="grid grid-cols-4 gap-2 mb-2">
+            {(Object.keys(VEHICLE_TYPE_CONFIG) as VehicleType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setForm({ ...form, vehicle_type: type })}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  form.vehicle_type === type
+                    ? 'border-brand-400 bg-brand-50 dark:bg-brand-400/10 text-brand-400'
+                    : 'border-gray-100 dark:border-zinc-800 text-gray-400'
+                }`}
+              >
+                <span className="text-xl mb-1">{VEHICLE_TYPE_CONFIG[type].icon}</span>
+                <span className="text-[10px] font-semibold uppercase">{VEHICLE_TYPE_CONFIG[type].label}</span>
+              </button>
+            ))}
+          </div>
+
           <Input
             label="Brand *"
             placeholder="Royal Enfield"

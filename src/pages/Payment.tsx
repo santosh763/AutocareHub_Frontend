@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 import paymentService from '../api/paymentService';
-
-import { useAppSelector } from '../hooks/useAppDispatch';
-
+import { useAppDispatch, useAppSelector } from '../hooks/useAppDispatch';
+import { fetchBookingsThunk } from '../store/slices/bookingsSlice';
 import { Button } from '../components/ui/Button';
-
 import { SERVICE_CATALOG } from '../types';
-
 import type { Booking } from '../types';
 
 const PAY_METHODS = [
@@ -45,31 +42,41 @@ const PLATFORM_FEE = 49;
 
 const Payment: React.FC = () => {
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
   const location = useLocation();
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const [method, setMethod] = useState('upi');
+  const [upiId, setUpiId] = useState('');
 
   // Booking from router state
   const bookingFromState = location.state?.booking as
     | Booking
     | undefined;
 
-  // Booking from redux fallback
+  // Booking from redux
   const currentBooking = useAppSelector(
     (s) => s.bookings.currentBooking
   );
 
-  // Final booking object
+  // All bookings from redux (for lookup)
+  const allBookings = useAppSelector(
+    (s) => s.bookings.items
+  );
+
+  useEffect(() => {
+    if (!bookingFromState && !currentBooking && allBookings.length === 0) {
+      dispatch(fetchBookingsThunk());
+    }
+  }, []);
+
+  // Final booking object lookup
   const booking: any =
-    bookingFromState || currentBooking;
+    bookingFromState || currentBooking || (allBookings.length > 0 ? allBookings[0] : null);
+
     console.log('Booking details:', booking); // Debug log
-
-  const [method, setMethod] = useState('upi');
-
-  const [loading, setLoading] = useState(false);
-
-  const [success, setSuccess] = useState(false);
-
-  const [upiId, setUpiId] = useState('');
 
   // No booking
   if (!booking) {

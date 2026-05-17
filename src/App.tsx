@@ -14,13 +14,7 @@ import BookingHistory from './pages/BookingHistory';
 import Payment      from './pages/Payment';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
-// Dark-mode toggle — reads system pref once on mount
-const useDarkMode = () => {
-  useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (prefersDark) document.documentElement.classList.add('dark');
-  }, []);
-};
+import { useTheme } from './hooks/useTheme';
 
 // Redirect to dashboard if already authed
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -32,7 +26,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
-  useDarkMode();
+  useTheme();
 
   return (
     <BrowserRouter>

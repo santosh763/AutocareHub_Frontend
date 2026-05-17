@@ -128,7 +128,7 @@ const BookService: React.FC = () => {
       console.log('Redux Result:', result);
 
       if (createBookingThunk.fulfilled.match(result)) {
-        const bookingData = result.payload;
+        const bookingData = (result.payload as any).booking;
 
         console.log(
           'Booking Payload Received:',

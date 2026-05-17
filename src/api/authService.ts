@@ -16,8 +16,8 @@ const authService = {
   },
 
   getProfile: async (): Promise<User> => {
-    const { data } = await api.get<{ data: User }>(`${BASE_URL}/auth/profile`);
-    return data.data;
+    const { data } = await api.get<{ user: User }>(`${BASE_URL}/auth/me`);
+    return data.user;
   },
 };
 
