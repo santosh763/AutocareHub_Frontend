@@ -4,18 +4,17 @@ import type { Booking, CreateBookingPayload } from '../types';
 
 const bookingService = {
   getAll: async (): Promise<Booking[]> => {
-    const { data } = await api.get<{ data: Booking[] }>(`${BASE_URL}/bookings/my`); // Updated route
+    const { data } = await api.get<{ bookings: Booking[] }>(`${BASE_URL}/bookings/my`);
     return data.bookings;
   },
 
-  getById: async (id: string): Promise<Booking> => {
-    const { data } = await api.get<{ data: Booking }>(`${BASE_URL}/bookings/${id}`);
-    return data.bookings;
+  create: async (payload: CreateBookingPayload): Promise<{ booking: Booking; payment: any }> => {
+    const { data } = await api.post<{ booking: Booking; payment: any }>(`${BASE_URL}/bookings`, payload);
+    return data;
   },
 
-  create: async (payload: CreateBookingPayload): Promise<Booking> => {
-    const { data } = await api.post<{ data: Booking }>(`${BASE_URL}/bookings`, payload);
-    return data.bookings;
+  cancel: async (id: string): Promise<void> => {
+    await api.delete(`${BASE_URL}/bookings/${id}`);
   },
 };
 

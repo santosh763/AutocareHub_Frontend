@@ -49,7 +49,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleStatusUpdate = async (id: string, status: BookingStatus) => {
     // Optimistic update
-    setBookings((prev) => prev.map((b) => b._id === id ? { ...b, status } : b));
+    setBookings((prev) => prev.map((b) => String(b.id) === id ? { ...b, status } : b));
     setUpdating(id);
     try {
       await adminService.updateBookingStatus(id, status);
@@ -63,18 +63,19 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // const filtered = bookings?.filter((b) => filter === 'all' || b.status === filter)
-  //   .filter((b) => {
-  //     if (!search) return true;
-  //     const q = search.toLowerCase();
-  //     const vehicle = typeof b.vehicleId === 'object' ? b.vehicleId : null;
-  //     return (
-  //       vehicle?.make.toLowerCase().includes(q) ||
-  //       vehicle?.model.toLowerCase().includes(q) ||
-  //       vehicle?.licensePlate.toLowerCase().includes(q) ||
-  //       b.serviceType.toLowerCase().includes(q)
-  //     );
-  //   });
+  const handleBookingDelete = async (id: string) => {
+    setUpdating(id);
+    try {
+      await adminService.deleteBooking(id);
+      toast.success('Booking deleted successfully');
+      setBookings((prev) => prev.filter((b) => String(b.id) !== id));
+    } catch {
+      toast.error('Failed to delete booking');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const filtered = bookings
   ?.filter((b) => filter === 'all' || b.status === filter)
   .filter((b) => {
@@ -301,12 +302,18 @@ const AdminDashboard: React.FC = () => {
 
                   <select
                     value={booking.status}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      if (e.target.value === 'delete') {
+                        if (window.confirm('Are you sure you want to permanently delete this booking?')) {
+                           handleBookingDelete(String(booking.id));
+                        }
+                        return;
+                      }
                       handleStatusUpdate(
                         String(booking.id),
                         e.target.value as BookingStatus
                       )
-                    }
+                    }}
                     disabled={updating === String(booking.id)}
                     className="text-xs border border-gray-200 dark:border-zinc-700 rounded-lg px-2 py-1 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-200 disabled:opacity-50 cursor-pointer"
                   >
@@ -315,6 +322,7 @@ const AdminDashboard: React.FC = () => {
                         {STATUS_LABELS[s]}
                       </option>
                     ))}
+                    <option value="delete" className="text-red-500 font-bold">🗑 Delete (Permanent)</option>
                   </select>
 
                   {updating === String(booking.id) && (
@@ -355,16 +363,15 @@ const AdminDashboard: React.FC = () => {
           {loading ? (
             [1, 2, 3].map((i) => <div key={i} className="px-4"><SkeletonRow /></div>)
           ) : filtered.map((booking) => {
-            const svc     = getServiceInfo(booking.serviceType);
-            const vehicle = typeof booking.vehicleId === 'object' ? booking.vehicleId : null;
+            const svc     = getServiceInfo(booking.service_type);
             return (
-              <div key={booking._id} className="p-4 space-y-3">
+              <div key={booking.id} className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{svc?.icon ?? '🔧'}</span>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">{svc?.label}</p>
-                      <p className="text-xs text-gray-400 dark:text-zinc-500">{vehicle ? `${vehicle.make} ${vehicle.model}` : '—'}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">{svc?.label ?? booking.service_type}</p>
+                      <p className="text-xs text-gray-400 dark:text-zinc-500">{booking.brand} {booking.model}</p>
                     </div>
                   </div>
                   <StatusBadge status={booking.status} />
@@ -373,8 +380,8 @@ const AdminDashboard: React.FC = () => {
                   <span className="text-sm font-semibold text-gray-800 dark:text-zinc-200">₹{booking.price?.toLocaleString()}</span>
                   <select
                     value={booking.status}
-                    onChange={(e) => handleStatusUpdate(booking._id, e.target.value as BookingStatus)}
-                    disabled={updating === booking._id}
+                    onChange={(e) => handleStatusUpdate(String(booking.id), e.target.value as BookingStatus)}
+                    disabled={updating === String(booking.id)}
                     className="text-xs border border-gray-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 focus:outline-none"
                   >
                     {STATUS_OPTIONS.map((s) => (

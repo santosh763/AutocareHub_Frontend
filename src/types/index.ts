@@ -31,29 +31,32 @@ export interface AuthResponse {
 }
 
 // ─── Vehicle Types ───────────────────────────────────────────────────────────
+export type VehicleType = 'car' | 'bike' | 'suv' | 'truck';
+
 export interface Vehicle {
   id: number|string;
-
   brand: string;
-
   model: string;
-
   year: number;
-
   registration_number: string;
-
+  vehicle_type: VehicleType;
   created_at?: string;
 }
 
 export interface CreateVehiclePayload {
   brand: string;
-
   model: string;
-
   year: number;
-
   registration_number: string;
+  vehicle_type: VehicleType;
 }
+
+export const VEHICLE_TYPE_CONFIG: Record<VehicleType, { label: string; icon: string }> = {
+  car:   { label: 'Car',   icon: '🚗' },
+  bike:  { label: 'Bike',  icon: '🏍️' },
+  suv:   { label: 'SUV',   icon: '🚙' },
+  truck: { label: 'Truck', icon: '🚛' },
+};
 
 // ─── Booking Types ───────────────────────────────────────────────────────────
 export type ServiceType =
@@ -72,12 +75,17 @@ export interface Booking {
   id: string;
   userId: string;
   vehicleId: Vehicle;
-  serviceType: ServiceType;
+  service_type: ServiceType;
   scheduledDate: string;
   scheduledSlot: string;
   status: BookingStatus;
   price: number;
+  brand: string;
+  registration_number:string;
   notes?: string;
+  model:string;
+  service_date:string;
+  payment_status:string;
   mechanicName?: string;
   paymentStatus: 'pending' | 'paid' | 'failed';
   createdAt: string;
@@ -156,15 +164,20 @@ export const SERVICE_CATALOG: ServiceInfo[] = [
 ];
 
 export const TIME_SLOTS = [
-  '08:00 AM – 09:00 AM',
-  '09:00 AM – 10:00 AM',
-  '10:00 AM – 11:00 AM',
-  '11:00 AM – 12:00 PM',
-  '01:00 PM – 02:00 PM',
-  '02:00 PM – 03:00 PM',
-  '03:00 PM – 04:00 PM',
-  '04:00 PM – 05:00 PM',
+  '10-11',
+  '11-12',
+  '12-1',
+  '2-4',
+  '4-6',
 ];
+
+export const TIME_SLOT_DISPLAY_MAP: Record<string, string> = {
+  '10-11': '10:00 AM – 11:00 AM',
+  '11-12': '11:00 AM – 12:00 PM',
+  '12-1': '12:00 PM – 1:00 PM',
+  '2-4': '2:00 PM – 4:00 PM',
+  '4-6': '4:00 PM – 6:00 PM',
+};
 
 export const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; dot: string }> = {
   pending:     { label: 'Pending',     color: 'bg-amber-50 text-amber-800 border-amber-200',   dot: 'bg-amber-400' },

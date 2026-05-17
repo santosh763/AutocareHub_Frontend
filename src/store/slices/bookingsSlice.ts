@@ -52,7 +52,14 @@ const bookingsSlice = createSlice({
       .addCase(fetchBookingsThunk.fulfilled,  (s, a) => { s.loading = false; s.items = a.payload; })
       .addCase(fetchBookingsThunk.rejected,   (s, a) => { s.loading = false; s.error = a.payload as string; })
       .addCase(createBookingThunk.pending,    (s) => { s.loading = true;  s.error = null; })
-      .addCase(createBookingThunk.fulfilled,  (s, a) => { s.loading = false; s.items.unshift(a.payload); s.currentBooking = a.payload; })
+      .addCase(createBookingThunk.fulfilled,  (s, a) => { 
+        s.loading = false; 
+        const booking = (a.payload as any).booking;
+        if (booking) {
+          s.items.unshift(booking); 
+          s.currentBooking = booking; 
+        }
+      })
       .addCase(createBookingThunk.rejected,   (s, a) => { s.loading = false; s.error = a.payload as string; });
   },
 });
